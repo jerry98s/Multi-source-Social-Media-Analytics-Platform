@@ -24,11 +24,11 @@ Data Sources → Ingestion Layer → Data Lake → Processing Layer → Feature 
 - Docker & Docker Compose (optional)
 - API keys for Reddit and News APIs
 
-### Option 1: Simple Testing (Recommended for first run)
+### Option 1: Basic Setup (Recommended for first run)
 
 ```bash
 # 1. Install dependencies
-pip install -r simple_requirements.txt
+pip install -r requirements.txt
 
 # 2. Copy and configure environment variables
 cp env.example .env
@@ -39,30 +39,29 @@ cp env.example .env
 # On Linux/Mac: sudo systemctl start postgresql
 
 # 4. Initialize database
-python setup.py
+python setup_database.py
 
-# 5. Test the platform
-python simple_main.py
+# 5. Test data collection
+python check_data.py
 ```
 
-### Option 2: Full Platform with Docker
+### Option 2: Full Platform with Airflow
 
 ```bash
-# 1. Start infrastructure
-docker-compose up -d
-
-# 2. Install Python dependencies
+# 1. Install Python dependencies
 pip install -r requirements.txt
 
-# 3. Configure environment variables
+# 2. Configure environment variables
 cp env.example .env
 # Edit .env with your API keys
 
-# 4. Initialize database and Airflow
-python setup.py
+# 3. Initialize database
+python setup_database.py
 
-# 5. Start the platform
-python start.py
+# 4. Start Airflow
+python start_airflow.py
+
+# 5. Access Airflow UI at http://localhost:8080 (admin/admin)
 ```
 
 ## 📁 Project Structure
@@ -75,16 +74,28 @@ python start.py
 │   └── ml_pipeline.py            # Machine learning pipeline
 ├── dags/                         # Airflow DAGs
 │   └── social_analytics_dag.py   # Main pipeline orchestration
+├── tests/                        # Test suite
+│   ├── test_collectors.py        # Data collection tests
+│   ├── test_database.py          # Database operation tests
+│   ├── test_processors.py       # Data processing tests
+│   ├── test_ml_pipeline.py      # ML pipeline tests
+│   └── test_suite.py             # Comprehensive test runner
 ├── sql/                          # Database schema
 │   └── schema.sql                # Database schema definition
+├── infrastructure/               # Infrastructure configuration
+│   ├── init.sql                  # Database initialization
+│   ├── prometheus.yml            # Monitoring configuration
+│   └── grafana/                  # Grafana dashboards
+├── models/                       # Trained ML models
+│   └── sentiment_model.pkl       # Sentiment analysis model
 ├── docker-compose.yml            # Infrastructure orchestration
-├── requirements.txt              # Full dependencies
-├── simple_requirements.txt       # Simplified dependencies
+├── requirements.txt              # Python dependencies
 ├── env.example                   # Environment variables template
-├── setup.py                      # Database and Airflow initialization
-├── start.py                      # Full platform launcher
-├── simple_main.py                # Simplified testing interface
-└── run_simple.py                 # Interactive testing interface
+├── setup_database.py            # Database initialization
+├── start_airflow.py             # Airflow launcher
+├── test_runner.py               # Test execution
+├── check_data.py                # Data status checker
+└── analyze_data.py              # Data analysis utilities
 ```
 
 ## 🔧 Technology Stack
@@ -123,53 +134,52 @@ python start.py
 - **Docker Setup**: Multi-service infrastructure
 
 #### Testing & Quality Assurance
-- **Comprehensive Test Suite**: 71/71 tests passing (100% coverage)
+- **Comprehensive Test Suite**: 5 test modules covering all core functionality
 - **Unit Tests**: All modules thoroughly tested
 - **Integration Tests**: End-to-end pipeline validation
 - **Mock Testing**: Proper external dependency handling
 
 ### ⚠️ Known Issues
 
-1. **Missing Infrastructure Files**:
-   - `infrastructure/init.sql` (referenced in docker-compose.yml)
-   - `infrastructure/prometheus.yml` (referenced in docker-compose.yml)
-   - `infrastructure/grafana/` directory structure
-
-2. **Twitter Collector**: Not yet implemented (Reddit and News only)
+1. **Twitter Collector**: Not yet implemented (Reddit and News only)
+2. **Docker Services**: Some infrastructure services may need manual setup
+3. **API Rate Limits**: Reddit (60 req/min), News API (100 req/day free tier)
 
 ## 🎯 Usage Examples
 
-### Simple Data Collection Test
+### Data Collection Test
 ```bash
-python simple_main.py
-# Choose option 1: Test data pipeline
+python check_data.py
+# Shows current data status and collection info
 ```
 
-### Interactive Testing
+### Run Test Suite
 ```bash
-python run_simple.py
-# Choose from menu options:
-# 1. Test data collection
-# 2. Test data pipeline
-# 3. Train ML model
-# 4. Show database status
+python test_runner.py
+# Runs comprehensive test suite
 ```
 
-### Full Platform
+### Start Airflow Platform
 ```bash
-python start.py
+python start_airflow.py
 # Starts Airflow webserver and scheduler
 # Access at http://localhost:8080 (admin/admin)
+```
+
+### Analyze Collected Data
+```bash
+python analyze_data.py
+# Performs data analysis on collected social media data
 ```
 
 ## 🧪 Testing
 
 ### Quick Test Suite
 ```bash
-# Run main test runner (6 core tests)
+# Run main test runner
 python test_runner.py
 
-# Run comprehensive test suite (71 tests)
+# Run comprehensive test suite
 python tests/test_suite.py
 
 # Check current data status
@@ -189,9 +199,8 @@ python tests/test_suite.py --verbose
 ```
 
 ### Test Coverage
-- **Total Tests**: 71
-- **Success Rate**: 100%
-- **Coverage**: All modules tested
+- **Test Files**: 5 comprehensive test modules
+- **Coverage**: All core modules tested
 - **Status**: ✅ Production Ready
 
 ## 📈 Data Pipeline
@@ -298,13 +307,13 @@ The platform includes these services:
 
 3. **Missing Dependencies**:
    ```bash
-   pip install -r simple_requirements.txt
+   pip install -r requirements.txt
    ```
 
-4. **Docker Issues**:
-   - Ensure Docker is running
-   - Check if ports are available
-   - Create missing infrastructure files
+4. **Airflow Issues**:
+   - Ensure PostgreSQL is running
+   - Check if ports 8080 and 5432 are available
+   - Run `python setup_database.py` to initialize database
 
 ## 🔄 Development Roadmap
 
@@ -331,10 +340,10 @@ The platform includes these services:
 - [x] Model training and evaluation
 
 ### Phase 5: Analytics & Deployment (In Progress)
-- [ ] Analytics dashboard
-- [ ] Real-time monitoring
-- [ ] Production deployment
-- [ ] Performance optimization
+- [x] Data analysis utilities (`analyze_data.py`)
+- [x] Airflow monitoring and orchestration
+- [ ] Real-time monitoring dashboard
+- [ ] Production deployment optimization
 
 ## 🤝 Contributing
 
@@ -362,8 +371,9 @@ For questions or issues:
 - [ ] Install PostgreSQL 15+
 - [ ] Copy `env.example` to `.env`
 - [ ] Configure API keys in `.env`
-- [ ] Install dependencies: `pip install -r simple_requirements.txt`
-- [ ] Initialize database: `python setup.py`
-- [ ] Test the platform: `python simple_main.py`
+- [ ] Install dependencies: `pip install -r requirements.txt`
+- [ ] Initialize database: `python setup_database.py`
+- [ ] Test the platform: `python check_data.py`
+- [ ] Start Airflow: `python start_airflow.py`
 
 **Ready to collect and analyze social media data!** 🚀
