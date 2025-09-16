@@ -1,22 +1,25 @@
-# Core Dependencies
-apache-airflow==2.7.3
+# Core Dependencies - Exact versions for reproducibility
+apache-airflow==2.6.3
 apache-airflow-providers-postgres==5.7.1
 
 # Data Processing
-pandas>=2.0.0
-numpy>=1.24.0
+pandas==2.3.2
+numpy==2.2.6
 
 # Database
-psycopg2-binary>=2.9.0
+psycopg2-binary==2.9.10
 
 # API Integrations  
-praw>=7.7.0
-newsapi-python>=0.2.6
-requests>=2.31.0
+praw==7.8.1
+newsapi-python==0.2.7
+requests==2.32.5
 
 # Machine Learning
-scikit-learn>=1.3.0
-joblib>=1.3.0
+scikit-learn==1.7.2
+joblib==1.5.2
 
 # Utilities
-python-dotenv>=1.0.0
+python-dotenv==1.1.1
+
+# Additional dependencies (auto-generated from pip freeze)
+# See requirements_frozen.txt for complete list
