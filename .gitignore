@@ -5,6 +5,7 @@
 .env.development
 .env.test
 *.env
+env.example
 
 # API Keys and Secrets
 secrets.txt
